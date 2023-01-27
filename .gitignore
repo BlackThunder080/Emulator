@@ -9,3 +9,6 @@
 bin/
 obj/
 bin-int/
+
+# Backup File
+**.bak
