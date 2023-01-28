@@ -48,7 +48,7 @@ int main(void)
 
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (const void*)0);
 	glEnableVertexAttribArray(0);
 		
 	while (!glfwWindowShouldClose(window))
@@ -57,7 +57,7 @@ int main(void)
 		cpu.RunCycle();
 		
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(float), cpu.ram, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, 3 * 2 * sizeof(float), cpu.ram, GL_DYNAMIC_DRAW);
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -66,8 +66,9 @@ int main(void)
 
 		ImGui::Begin("CPU State");
 		ImGui::Text("PC: %04X", cpu.pc);
-		ImGui::Text("%f, %f", ((float*)&cpu.ram)[0], ((float*)&cpu.ram)[1]);
-		ImGui::Text("%f, %f", ((float*)&cpu.ram)[2], ((float*)&cpu.ram)[3]);
+		ImGui::Text("%f, %f", ((float*)cpu.ram)[0], ((float*)cpu.ram)[1]);
+		ImGui::Text("%f, %f", ((float*)cpu.ram)[2], ((float*)cpu.ram)[3]);
+		ImGui::Text("%f, %f", ((float*)cpu.ram)[4], ((float*)cpu.ram)[5]);
 		for (int i = 0; i < cpu.registers.size(); i++)
 			ImGui::Text("R%02d: 0x%08X  =  %d / %ff", i, cpu.registers[i], cpu.registers[i], *(float*)&cpu.registers[i]);
 		ImGui::End();
@@ -82,7 +83,7 @@ int main(void)
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glBindVertexArray(vertexarray);
-		glDrawArrays(GL_LINES, 0, 2);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
