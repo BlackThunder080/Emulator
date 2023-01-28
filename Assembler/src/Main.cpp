@@ -25,16 +25,44 @@ int main()
 	std::ifstream infile("res/bios.asm");
 	std::ofstream outfile("../Emulator/res/bios.bin", std::ios::binary);
 
-	int linenumber = 1;
 	std::string line;
+
+	std::map<std::string, size_t> labels;
+	size_t address = 0;
+	while (std::getline(infile, line))
+	{	
+		int offset = (int)line.find(':');
+		if (offset != std::string::npos)
+		{
+			labels[line.substr(0, offset)] = address;
+			
+			// If we're at the end of the line, no need to increment address
+			if (offset == line.length())
+				continue;
+		}
+		address += 4;
+	}
+
+	infile.clear();
+	infile.seekg(0);
+
+	int linenumber = 0;
 	while (std::getline(infile, line))
 	{
+		linenumber++;
+		if (line == "")
+			continue;
+		if (labels.find(line.substr(0, line.find(':'))) != labels.end())
+			continue;
+
+		line.erase(0, line.find_first_not_of(" \t"));
+
 		std::string instruction;
 		std::vector<Token> operands;
 
 		instruction = line.substr(0, line.find(' '));
 		line.erase(0, instruction.length());
-		line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) { return c != ' '; }));
+		line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) { return c != ' ' && c != '\t'; }));
 
 		size_t offset;
 		do
@@ -42,7 +70,7 @@ int main()
 			offset = line.find(',');
 			operands.push_back({ line.substr(0, offset) });
 			line.erase(0, operands.back().string.length() + 1);
-			line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) { return c != ' '; }));
+			line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) { return c != ' ' && c != '\t'; }));
 		} while (offset != std::string::npos);
 
 
@@ -63,6 +91,12 @@ int main()
 			else if (operand.string._Starts_with("0x"))
 			{
 				operand.value = (void*)stoull(operand.string, nullptr, 16);
+				operand.type = Token::Type::Immediate;
+				continue;
+			}
+			else if (labels.find(operand.string) != labels.end())
+			{
+				operand.value = (void*)labels[operand.string];
 				operand.type = Token::Type::Immediate;
 				continue;
 			}
@@ -119,20 +153,32 @@ int main()
 				exit(1);
 			}
 			bytes[0] = (opcode) | ((rs & 0b11) << 6);
-			bytes[1] = (rs >> 2) | (rd << 5);
+			bytes[1] = (rs >> 2) | (rd << 3);
 			bytes[2] = (imm & 0xff);
 			bytes[3] = ((imm >> 8) & 0xff);
 			break;
 		}
 		case 0b10: // A Type
 		{
+			uint32_t address;
+			if (operands[0].type == Token::Type::Immediate)
+			{
+				address = (uint16_t)(size_t)operands[0].value;
+			}
+			else
+			{
+				std::cerr << "Invalid combination of operands on line " << linenumber << std::endl;
+				exit(1);
+			}
+			bytes[0] = opcode | ((address & 0b11) << 6);
+			bytes[1] = ((address >>  2) & 0xff);
+			bytes[2] = ((address >> 10) & 0xff);
+			bytes[3] = ((address >> 18) & 0xff);
 			break;
 		}
 		}
 
 		outfile.write((char*)bytes, 4);
-
-		linenumber++;
 	}
 
 	return 0;
