@@ -50,12 +50,14 @@ int main()
 	while (std::getline(infile, line))
 	{
 		linenumber++;
+
+		line.erase(0, line.find_first_not_of(" \t"));
+		line.erase(line.find_last_not_of(" \t") + 1, line.length());
+
 		if (line == "")
 			continue;
 		if (labels.find(line.substr(0, line.find(':'))) != labels.end())
 			continue;
-
-		line.erase(0, line.find_first_not_of(" \t"));
 
 		std::string instruction;
 		std::vector<Token> operands;
