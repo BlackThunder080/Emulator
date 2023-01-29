@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "Instructions.h"
+//#include "Instructions.h"
+#include "../../Emulator/src/Emulator/Instruction.h"
 
 
 struct Token
@@ -111,14 +112,14 @@ int main()
 
 		uint8_t bytes[4];
 
-		uint8_t opcode = InstructionMap[instruction];
-		switch ((opcode >> 4) & 0b11)
+		InstructionInfo instructioninfo = InstructionInfoFromName[instruction];
+		switch (instructioninfo.type)
 		{
-		case 0b00: // R Type
+		case InstructionType::Register:
 		{
 			break;
 		}
-		case 0b01: // I Type
+		case InstructionType::Immediate:
 		{
 			uint8_t rs, rd;  uint16_t imm;
 			if (operands.size() == 2)
@@ -154,13 +155,13 @@ int main()
 				std::cerr << "Wrong number of operands on line " << linenumber << std::endl;
 				exit(1);
 			}
-			bytes[0] = (opcode) | ((rs & 0b11) << 6);
+			bytes[0] = (instructioninfo.opcode) | ((rs & 0b11) << 6);
 			bytes[1] = (rs >> 2) | (rd << 3);
 			bytes[2] = (imm & 0xff);
 			bytes[3] = ((imm >> 8) & 0xff);
 			break;
 		}
-		case 0b10: // A Type
+		case InstructionType::Address: // A Type
 		{
 			uint32_t address;
 			if (operands[0].type == Token::Type::Immediate)
@@ -172,7 +173,7 @@ int main()
 				std::cerr << "Invalid combination of operands on line " << linenumber << std::endl;
 				exit(1);
 			}
-			bytes[0] = opcode | ((address & 0b11) << 6);
+			bytes[0] = instructioninfo.opcode | ((address & 0b11) << 6);
 			bytes[1] = ((address >>  2) & 0xff);
 			bytes[2] = ((address >> 10) & 0xff);
 			bytes[3] = ((address >> 18) & 0xff);

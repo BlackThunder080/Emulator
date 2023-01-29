@@ -1,40 +1,97 @@
 #pragma once
-#include <cstdint>
-#include <memory>
+#include <map>
+#include <vector>
+#include <string>
 
 
-template<typename T> T CreateInstructionFromBytes(const uint8_t bytes[4])
-{
-	T i;
-	std::memcpy((void*)&i, bytes, 4);
-	return i;
-}
-
-template<typename T> T CreateInstructionFromBytes(const uint32_t bytes)
-{
-	T i;
-	std::memcpy((void*)&i, &bytes, 4);
-	return i;
-}
-
-
-#pragma pack(push, 1)
-struct InstructionR
+// ============================================= //
+struct Instruction
 {
 	size_t opcode : 6;
+
+	Instruction() : opcode(0) {}
+	Instruction(uint32_t bytes)
+		: opcode(bytes & 0b111111) {};
 };
 
-struct InstructionI
+struct InstructionR : public Instruction
+{
+	size_t opcode : 6;
+
+	InstructionR(uint32_t bytes)
+		: opcode((bytes >> 0) & 0b111111) {}
+};
+
+struct InstructionI : public Instruction
 {
 	size_t opcode : 6;
 	size_t rs : 5;
 	size_t rd : 5;
 	size_t imm : 16;
+
+	InstructionI(uint32_t bytes)
+		: opcode((bytes >> 0) & 0b111111), rs((bytes >> 6) & 0b11111), rd((bytes >> 11) & 0b11111), imm(bytes >> 16) {}
 };
 
-struct InstructionA
+struct InstructionA : public Instruction
 {
 	size_t opcode : 6;
 	size_t address : 24;
+
+	InstructionA(uint32_t bytes)
+		: opcode((bytes >> 0) & 0b111111), address((bytes >> 6)) {}
 };
-#pragma pack(pop)
+
+// ============================================= //
+
+enum Opcode : uint8_t
+{
+	MW,
+	LW,
+	SW,
+	LI,
+	LUI,
+	B,
+};
+
+enum class InstructionType
+{
+	Register,
+	Immediate,
+	Address,
+	None,
+};
+
+enum class OperandType
+{
+	Register,
+	Immediate,
+};
+
+struct InstructionInfo
+{
+	std::string name;
+	uint8_t opcode;
+	InstructionType type;
+	std::vector<OperandType> operands;
+};
+
+// ============================================= //
+
+std::map<uint8_t, InstructionInfo> InstructionInfoFromOpcode = {
+	{ Opcode::MW,  { "mw",  Opcode::MW,  InstructionType::Register  } },
+	{ Opcode::LW,  { "lw",  Opcode::LW,  InstructionType::Immediate } },
+	{ Opcode::SW,  { "sw",  Opcode::SW,  InstructionType::Immediate } },
+	{ Opcode::LI,  { "li",  Opcode::LI,  InstructionType::Register  } },
+	{ Opcode::LUI, { "lui", Opcode::LUI, InstructionType::Immediate } },
+	{ Opcode::B,   { "b",   Opcode::B,   InstructionType::Address   } },
+};
+
+std::map<std::string, InstructionInfo> InstructionInfoFromName = {
+	{ "mw",  InstructionInfoFromOpcode[ Opcode::MW  ] },
+	{ "lw",  InstructionInfoFromOpcode[ Opcode::LW  ] },
+	{ "sw",  InstructionInfoFromOpcode[ Opcode::SW  ] },
+	{ "li",  InstructionInfoFromOpcode[ Opcode::LI  ] },
+	{ "lui", InstructionInfoFromOpcode[ Opcode::LUI ] },
+	{ "b",   InstructionInfoFromOpcode[ Opcode::B   ] },
+};

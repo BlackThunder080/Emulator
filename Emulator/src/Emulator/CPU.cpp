@@ -28,45 +28,63 @@ CPU::~CPU()
 void CPU::RunCycle()
 {
 	uint32_t instructionbytes = *(uint32_t*)(addr + pc); pc += 4;
-	switch ((instructionbytes >> 4) & 0b11)
+	InstructionInfo instructioninfo = InstructionInfoFromOpcode[instructionbytes & 0b111111];
+
+	switch (instructioninfo.type)
 	{
-	case 0b00: // R Type
+	case InstructionType::Register:
 	{
-		InstructionR instruction = CreateInstructionFromBytes<InstructionR>(instructionbytes);
-		break;
-	}
-	case 0b01: // I Type
-	{
-		InstructionI instruction = CreateInstructionFromBytes<InstructionI>(instructionbytes);
+		InstructionR instruction(instructionbytes);
 		switch (instruction.opcode)
 		{
-		case 0x10: // LI
+		default:
+			break;
+		}
+		break;
+	}
+	case InstructionType::Immediate:
+	{
+		InstructionI instruction(instructionbytes);
+		switch (instruction.opcode)
+		{
+		case Opcode::LI:
 			registers[instruction.rd] = instruction.imm;
 			break;
-		case 0x11: // LUI
+		case Opcode::LUI:
 			registers[instruction.rd] = ((uint32_t)(instruction.imm << 16) | (uint32_t)(registers[instruction.rd] & 0xffff));
 			break;
-		case 0x12: // LW
+		case Opcode::LW:
 			registers[instruction.rd] = *(uint32_t*)(addr + instruction.imm + registers[instruction.rs]);
 			break;
-		case 0x13: // SW
+		case Opcode::SW:
 			*(uint32_t*)(addr + instruction.imm + registers[instruction.rd]) = registers[instruction.rs];
 			break;
-		}
-		break;
-	}
-	case 0b10: // A Type
-	{
-		InstructionA instruction = CreateInstructionFromBytes<InstructionA>(instructionbytes);
-		switch (instruction.opcode)
-		{
-		case 0x20: // Branch
-			pc = instruction.address;
+		default:
 			break;
 		}
 		break;
 	}
-
+	case InstructionType::Address:
+	{
+		InstructionA instruction(instructionbytes);
+		switch (instruction.opcode)
+		{
+		case Opcode::B:
+			pc = instruction.address;
+			break;
+		default:
+			break;
+		}
+		break;
+	}
+	case InstructionType::None:
+	{
+		Instruction instruction(instructionbytes);
+		switch (instruction.opcode)
+		{
+		}
+		break;
+	}
 	}
 }
 

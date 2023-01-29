@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include "GPU.h"
 
 class CPU
 {
@@ -15,4 +16,6 @@ public:
 	uint8_t* addr;
 	uint8_t* rom;
 	uint8_t* ram;
+private:
+	GPU gpu;
 };

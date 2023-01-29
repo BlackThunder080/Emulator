@@ -4,9 +4,10 @@
 #include <cstdint>
 
 std::map<std::string, uint8_t> InstructionMap({
-	{ "li",  0x10 },
-	{ "lui", 0x11 },
-	{ "lw",  0x12 },
-	{ "sw",  0x13 },
-	{ "b",   0x20 },
+	{ "mw",  0x00 },
+	{ "lw",  0x01 },
+	{ "sw",  0x02 },
+	{ "li",  0x03 },
+	{ "lui", 0x04 },
+	{ "b",   0x05 },
 });
