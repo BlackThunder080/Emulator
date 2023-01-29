@@ -62,13 +62,9 @@ int main(void)
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		ImGui::DockSpaceOverViewport();
 
 		ImGui::Begin("CPU State");
 		ImGui::Text("PC: %04X", cpu.pc);
-		ImGui::Text("%f, %f", ((float*)cpu.ram)[0], ((float*)cpu.ram)[1]);
-		ImGui::Text("%f, %f", ((float*)cpu.ram)[2], ((float*)cpu.ram)[3]);
-		ImGui::Text("%f, %f", ((float*)cpu.ram)[4], ((float*)cpu.ram)[5]);
 		for (int i = 0; i < cpu.registers.size(); i++)
 			ImGui::Text("R%02d: 0x%08X  =  %d / %ff", i, cpu.registers[i], cpu.registers[i], *(float*)&cpu.registers[i]);
 		ImGui::End();
@@ -80,10 +76,11 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glBindVertexArray(vertexarray);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+	
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
