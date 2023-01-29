@@ -4,6 +4,7 @@
 
 #include "CPU.h"
 #include "Instruction.h"
+#include "FPU.h"
 
 
 static inline uint32_t bit_range(uint32_t val, uint8_t start, uint8_t end)
@@ -18,6 +19,8 @@ CPU::CPU()
 	addr = new uint8_t[16 * 1024 * 1024];
 	rom = addr + 0x000000;
 	ram = addr + 0x080000;
+
+	coprocessors[0] = std::make_unique<FPU>();
 }
 
 CPU::~CPU()
@@ -25,7 +28,7 @@ CPU::~CPU()
 	delete addr;
 }
 
-void CPU::RunCycle()
+void CPU::ExecuteCycle()
 {
 	uint32_t instructionbytes = *(uint32_t*)(addr + pc); pc += 4;
 	InstructionInfo instructioninfo = InstructionInfoFromOpcode[instructionbytes & 0b111111];
@@ -37,6 +40,12 @@ void CPU::RunCycle()
 		InstructionR instruction(instructionbytes);
 		switch (instruction.opcode)
 		{
+		case Opcode::CORD:
+			registers[instruction.r1] = coprocessors[instruction.r2]->Read(instruction.r3);
+			break;
+		case Opcode::COWR:
+			coprocessors[instruction.r1]->Write(instruction.r2, registers[instruction.r3]);
+			break;
 		default:
 			break;
 		}
@@ -82,6 +91,8 @@ void CPU::RunCycle()
 		Instruction instruction(instructionbytes);
 		switch (instruction.opcode)
 		{
+		default:
+			break;
 		}
 		break;
 	}

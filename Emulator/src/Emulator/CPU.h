@@ -1,6 +1,9 @@
 #pragma once
 #include <array>
-#include "GPU.h"
+#include <memory>
+
+#include "Coprocessor.h"
+
 
 class CPU
 {
@@ -8,7 +11,7 @@ public:
 	CPU();
 	~CPU();
 
-	void RunCycle();
+	void ExecuteCycle();
 	void LoadRomFile(std::string filename);
 
 	std::array<uint32_t, 32> registers;
@@ -17,5 +20,5 @@ public:
 	uint8_t* rom;
 	uint8_t* ram;
 private:
-	GPU gpu;
+	std::array<std::unique_ptr<Coprocessor>, 32> coprocessors;
 };

@@ -32,6 +32,14 @@ int main()
 	size_t address = 0;
 	while (std::getline(infile, line))
 	{	
+		line.erase(0, line.find_first_not_of(" \t"));
+		line.erase(line.find_last_not_of(" \t") + 1, line.length());
+
+		if (line == "")
+			continue;
+		if (labels.find(line.substr(0, line.find(':'))) != labels.end())
+			continue;
+
 		int offset = (int)line.find(':');
 		if (offset != std::string::npos)
 		{
@@ -117,6 +125,44 @@ int main()
 		{
 		case InstructionType::Register:
 		{
+			uint8_t r1, r2, r3;
+			if (operands.size() == 2)
+			{
+				if (operands[0].type == Token::Type::Register && operands[1].type == Token::Type::Register)
+				{
+					r1 = (uint8_t)(size_t)operands[0].value;
+					r2 = (uint8_t)(size_t)operands[1].value;
+					r3 = 0;
+				}
+				else
+				{
+					std::cerr << "Invalid combination of operands on line " << linenumber << std::endl;
+					exit(1);
+				}
+			}
+			else if (operands.size() == 3)
+			{
+				if (operands[0].type == Token::Type::Register && operands[1].type == Token::Type::Register && operands[2].type == Token::Type::Register)
+				{
+					r1 = (uint8_t)(size_t)operands[0].value;
+					r2 = (uint8_t)(size_t)operands[1].value;
+					r3 = (uint8_t)(size_t)operands[2].value;
+				}
+				else
+				{
+					std::cerr << "Invalid combination of operands on line " << linenumber << std::endl;
+					exit(1);
+				}
+			}
+			else
+			{
+				std::cerr << "Wrong number of operands on line " << linenumber << std::endl;
+				exit(1);
+			}
+			bytes[0] = (instructioninfo.opcode) | ((r1 & 0b11) << 6);
+			bytes[1] = (r1 >> 2) | (r2 << 3);
+			bytes[2] = (r3);
+			break;
 			break;
 		}
 		case InstructionType::Immediate:

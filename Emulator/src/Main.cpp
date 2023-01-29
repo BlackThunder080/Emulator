@@ -54,7 +54,7 @@ int main(void)
 	while (!glfwWindowShouldClose(window))
 	{
 		// Update
-		cpu.RunCycle();
+		cpu.ExecuteCycle();
 		
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 		glBufferData(GL_ARRAY_BUFFER, 3 * 2 * sizeof(float), cpu.ram, GL_DYNAMIC_DRAW);
