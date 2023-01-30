@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-//#include "Instructions.h"
 #include "../../Emulator/src/Emulator/Instruction.h"
 
 
@@ -87,7 +86,7 @@ int main()
 
 		for (auto& operand : operands)
 		{
-			if (operand.string._Starts_with("$"))
+			if (operand.string.starts_with("$"))
 			{
 				operand.value = (void*)(size_t)stoi(operand.string.substr(1));
 				operand.type = Token::Type::Register;
@@ -99,7 +98,7 @@ int main()
 				operand.type = Token::Type::Immediate;
 				continue;
 			}
-			else if (operand.string._Starts_with("0x"))
+			else if (operand.string.starts_with("0x"))
 			{
 				operand.value = (void*)stoull(operand.string, nullptr, 16);
 				operand.type = Token::Type::Immediate;
