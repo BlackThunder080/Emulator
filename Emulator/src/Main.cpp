@@ -10,6 +10,7 @@
 #include "ImGuiGLStuff/imgui_impl_opengl3.h"
 
 #include "Emulator/CPU.h"
+#include "Emulator/GPU.h"
 
 
 int main(void)
@@ -24,6 +25,10 @@ int main(void)
 		exit(-1);
 	}
 
+	glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int x, int y) {
+		glViewport(0, 0, x, y);
+	});
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -31,38 +36,24 @@ int main(void)
 	io.Fonts->AddFontFromFileTTF("res/fonts/roboto/Roboto-Regular.ttf", 20);
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowRounding = 10.0f;
+	
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
-
-
 	ImGui_ImplOpenGL3_Init();
 
 	ImGui::StyleColorsDark();
 
 	CPU cpu;
 	cpu.LoadRomFile("res/bios.bin");
-
-	unsigned int vertexarray, vertexbuffer;
-
-	glGenVertexArrays(1, &vertexarray);
-	glBindVertexArray(vertexarray);
-
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (const void*)0);
-	glEnableVertexAttribArray(0);
 		
 	while (!glfwWindowShouldClose(window))
 	{
 		// Update
 		cpu.ExecuteCycle();
-		
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glBufferData(GL_ARRAY_BUFFER, 3 * 2 * sizeof(float), cpu.ram, GL_DYNAMIC_DRAW);
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-
+		
 		ImGui::Begin("CPU State");
 		ImGui::Text("PC: %04X", cpu.pc);
 		for (int i = 0; i < cpu.registers.size(); i++)
@@ -71,17 +62,15 @@ int main(void)
 		
 		ImGui::EndFrame();
 
-		// Render
+	
 		glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		
+
+		cpu.GetGPU()->RenderMeshes();
 		ImGui::Render();
 
-		glBindVertexArray(vertexarray);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-	
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

@@ -2,9 +2,10 @@
 #include <fstream>
 #include <bitset>
 
-#include "CPU.h"
 #include "Instruction.h"
+#include "CPU.h"
 #include "FPU.h"
+#include "GPU.h"
 
 
 static inline uint32_t bit_range(uint32_t val, uint8_t start, uint8_t end)
@@ -21,6 +22,7 @@ CPU::CPU()
 	ram = addr + 0x080000;
 
 	coprocessors[0] = std::make_unique<FPU>();
+	coprocessors[1] = std::make_unique<GPU>();
 }
 
 CPU::~CPU()
@@ -41,10 +43,10 @@ void CPU::ExecuteCycle()
 		switch (instruction.opcode)
 		{
 		case Opcode::CORD:
-			registers[instruction.r1] = coprocessors[instruction.r2]->Read(instruction.r3);
+			//registers[instruction.r1] = coprocessors[instruction.r2]->Read(this, instruction.r3);
 			break;
 		case Opcode::COWR:
-			coprocessors[instruction.r1]->Write(instruction.r2, registers[instruction.r3]);
+			coprocessors[instruction.r1]->Write(this, instruction.r2, registers[instruction.r3]);
 			break;
 		default:
 			break;

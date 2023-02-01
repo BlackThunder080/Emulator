@@ -76,8 +76,8 @@ enum class OperandType
 struct InstructionInfo
 {
 	std::string name;
-	uint8_t opcode;
-	InstructionType type;
+	uint8_t opcode = 0;
+	InstructionType type = InstructionType::None;
 	std::vector<OperandType> operands;
 };
 

@@ -4,7 +4,7 @@
 
 #include "FPU.h"
 
-uint32_t FPU::Read(uint32_t address)
+uint32_t FPU::Read(CPU* cpu, uint8_t address)
 {
 	switch (address)
 	{
@@ -20,13 +20,13 @@ uint32_t FPU::Read(uint32_t address)
 		return std::bit_cast<uint32_t>(a * b);
 	case 0x05:
 		return std::bit_cast<uint32_t>(a / b);
-	default:
-		std::cerr << "Invalid FPU address 0x" << std::hex << address << std::endl;
-		exit(1);
 	}
+	
+	std::cerr << "Invalid FPU address 0x" << std::hex << address << std::endl;
+	exit(1);
 }
 
-void FPU::Write(uint32_t address, uint32_t value)
+void FPU::Write(CPU* cpu, uint8_t address, uint32_t value)
 {
 	(address == 0 ? a : b) = std::bit_cast<float>(value);
 }
