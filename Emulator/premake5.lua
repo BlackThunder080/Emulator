@@ -22,8 +22,12 @@ project "Emulator"
 		"GLFW",
 		"GLAD",
 		"ImGui",
-		"opengl32",
 	}
+
+	filter "system:windows"
+		links { "opengl32" }
+	filter "system:linux"
+		links { "GL" }
 	
 	filter "configurations:Debug"
 		runtime "Debug"
