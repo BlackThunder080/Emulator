@@ -101,9 +101,15 @@ void CPU::ExecuteCycle()
 	}
 }
 
-void CPU::LoadRomFile(std::string filename)
+void CPU::LoadRomFile(std::string filepath)
 {
-	std::ifstream romfile("res/bios.bin", std::ios::binary);
+	// Reset CPU state
+	pc = 0;
+	registers.fill(0);
+	running = true;
+
+	// Load ROM file
+	std::ifstream romfile(filepath, std::ios::binary);
 	romfile.read((char*)rom, 4 * 1024 * 1024);
 	romfile.close();
 }

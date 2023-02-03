@@ -1,9 +1,10 @@
+#include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <map>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
 #include <imgui.h>
 
 #include "ImGuiGLStuff/imgui_impl_glfw.h"
@@ -43,17 +44,53 @@ int main(void)
 	ImGui::StyleColorsDark();
 
 	CPU cpu;
-	cpu.LoadRomFile("res/bios.bin");
-		
+	
+	std::map<std::string, bool> popups = {
+		{ "Load ROM", false },
+	};
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// Update
-		cpu.ExecuteCycle();
+		if (cpu.running)
+			cpu.ExecuteCycle();
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		
+		if (popups["Load ROM"])
+		{
+			ImGui::Begin("Load ROM", &popups["Load ROM"]);
+
+			if (ImGui::Button(".."))
+				std::filesystem::current_path(std::filesystem::current_path().parent_path());
+			for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path()))
+			{
+				if (entry.is_directory())
+				{
+					if (ImGui::Button(entry.path().filename().string().c_str()))
+						std::filesystem::current_path(entry.path());
+				}
+				else
+				{
+					if (ImGui::Button(entry.path().filename().string().c_str()))
+						cpu.LoadRomFile(entry.path().string());
+				}
+			}
+			ImGui::End();
+		}
+
+		if (ImGui::BeginMainMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				ImGui::MenuItem("Load ROM...", "Ctrl+O", &popups["Load ROM"]);
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
+		}
+
 		ImGui::Begin("CPU State");
 		ImGui::Text("PC: %04X", cpu.pc);
 		for (int i = 0; i < cpu.registers.size(); i++)
