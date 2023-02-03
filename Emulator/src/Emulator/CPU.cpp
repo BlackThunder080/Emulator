@@ -43,7 +43,7 @@ void CPU::ExecuteCycle()
 		switch (instruction.opcode)
 		{
 		case Opcode::CORD:
-			//registers[instruction.r1] = coprocessors[instruction.r2]->Read(this, instruction.r3);
+			registers[instruction.r1] = coprocessors[instruction.r2]->Read(this, instruction.r3);
 			break;
 		case Opcode::COWR:
 			coprocessors[instruction.r1]->Write(this, instruction.r2, registers[instruction.r3]);

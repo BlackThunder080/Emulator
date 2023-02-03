@@ -59,6 +59,14 @@ int main(void)
 		for (int i = 0; i < cpu.registers.size(); i++)
 			ImGui::Text("R%02d: 0x%08X  =  %d / %ff", i, cpu.registers[i], cpu.registers[i], *(float*)&cpu.registers[i]);
 		ImGui::End();
+		ImGui::Begin("VRAM");
+		for (int i = 0; i < cpu.registers.size(); i++)
+		{
+			if (i % 2 != 0)
+				ImGui::SameLine();
+			ImGui::Text("%f", ((float*)cpu.ram)[i]);
+		}
+		ImGui::End();
 		
 		ImGui::EndFrame();
 

@@ -80,7 +80,13 @@ void GPU::Write(CPU* cpu, uint8_t address, uint32_t value)
 		glGenBuffers(1, &m_VBOs.back().first);
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBOs.back().first);
 		glBufferData(GL_ARRAY_BUFFER, m_VBOs.back().second * 2 * sizeof(float), cpu->addr + value, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBOs.back().first);
+		break;
+	case 0x01:
+		m_VBOs.resize(cpu->registers[1] + 1);
+		m_VBOs[cpu->registers[1]].second = cpu->registers[0];
+		glBindVertexArray(m_VertexArray);
+		glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[cpu->registers[1]].first);
+		glBufferData(GL_ARRAY_BUFFER, m_VBOs[cpu->registers[1]].second * 2 * sizeof(float), cpu->addr + value, GL_STATIC_DRAW);
 		break;
 	}
 }
@@ -94,8 +100,6 @@ void GPU::RenderMeshes()
 	for (auto [vertexbuffer, vertices] : m_VBOs)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-
 		glDrawArrays(GL_TRIANGLES, 0, vertices);
 	}
 }
