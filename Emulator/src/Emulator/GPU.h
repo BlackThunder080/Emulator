@@ -3,15 +3,12 @@
 #include "Coprocessor.h"
 
 
-class CPU;
-
 class GPU : public Coprocessor
 {
 public:
 	GPU();
 	virtual void ExecuteCycle() override;
-	virtual uint32_t Read(class CPU* cpu, uint8_t address) override;
-	virtual void Write(class CPU* cpu, uint8_t address, uint32_t value) override;
+	virtual void Call(CPU* cpu) override;
 	
 	void RenderMeshes();
 

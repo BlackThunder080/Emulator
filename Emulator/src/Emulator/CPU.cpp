@@ -42,12 +42,6 @@ void CPU::ExecuteCycle()
 		InstructionR instruction(instructionbytes);
 		switch (instruction.opcode)
 		{
-		case Opcode::CORD:
-			registers[instruction.r1] = coprocessors[instruction.r2]->Read(this, instruction.r3);
-			break;
-		case Opcode::COWR:
-			coprocessors[instruction.r1]->Write(this, instruction.r2, registers[instruction.r3]);
-			break;
 		default:
 			break;
 		}
@@ -69,6 +63,9 @@ void CPU::ExecuteCycle()
 			break;
 		case Opcode::SW:
 			*(uint32_t*)(addr + instruction.imm + registers[instruction.rd]) = registers[instruction.rs];
+			break;
+		case Opcode::SYS:
+			coprocessors[instruction.imm]->Call(this);
 			break;
 		default:
 			break;

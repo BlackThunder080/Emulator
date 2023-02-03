@@ -65,28 +65,23 @@ void GPU::ExecuteCycle()
 {
 }
 
-uint32_t GPU::Read(CPU* cpu, uint8_t address)
+void GPU::Call(CPU* cpu)
 {
-	return 0;
-}
-
-void GPU::Write(CPU* cpu, uint8_t address, uint32_t value)
-{
-	switch (address)
+	switch (cpu->registers[1])
 	{
 	case 0x00:
-		m_VBOs.push_back({ 0, cpu->registers[0] });
-		glBindVertexArray(m_VertexArray);
-		glGenBuffers(1, &m_VBOs.back().first);
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBOs.back().first);
-		glBufferData(GL_ARRAY_BUFFER, m_VBOs.back().second * 2 * sizeof(float), cpu->addr + value, GL_STATIC_DRAW);
+		m_VBOs.clear();
 		break;
 	case 0x01:
-		m_VBOs.resize(cpu->registers[1] + 1);
-		m_VBOs[cpu->registers[1]].second = cpu->registers[0];
+		m_VBOs.push_back({ 0, 0 });
 		glBindVertexArray(m_VertexArray);
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[cpu->registers[1]].first);
-		glBufferData(GL_ARRAY_BUFFER, m_VBOs[cpu->registers[1]].second * 2 * sizeof(float), cpu->addr + value, GL_STATIC_DRAW);
+		glGenBuffers(1, &m_VBOs.back().first);
+		break;
+	case 0x02:
+		m_VBOs[cpu->registers[2]].second = cpu->registers[3];
+		glBindVertexArray(m_VertexArray);
+		glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[cpu->registers[2]].first);
+		glBufferData(GL_ARRAY_BUFFER, m_VBOs[cpu->registers[2]].second * 2 * sizeof(float), cpu->addr + cpu->registers[4], GL_STATIC_DRAW);
 		break;
 	}
 }

@@ -4,50 +4,35 @@
 
 #include "FPU.h"
 
-uint32_t FPU::Read(CPU* cpu, uint8_t address)
+
+void FPU::ExecuteCycle()
 {
-	switch (address)
-	{
-	case 0x00:
-		return (uint32_t)(a);
-	case 0x01:
-		return (uint32_t)(a);
-	case 0x02:
-		return std::bit_cast<uint32_t>(a);
-	case 0x03:
-		return std::bit_cast<uint32_t>(b);
-	case 0x04:
-		return std::bit_cast<uint32_t>(a + b);
-	case 0x05:
-		return std::bit_cast<uint32_t>(a - b);
-	case 0x06:
-		return std::bit_cast<uint32_t>(a * b);
-	case 0x07:
-		return std::bit_cast<uint32_t>(a / b);
-	}
-	
-	std::cerr << "Invalid FPU address 0x" << std::hex << address << std::endl;
-	exit(1);
 }
 
-void FPU::Write(CPU* cpu, uint8_t address, uint32_t value)
+void FPU::Call(CPU* cpu)
 {
-	switch (address)
+	switch (cpu->registers[1])
 	{
 	case 0x00:
-		a = (float)(value);
+		cpu->registers[0] = std::bit_cast<uint32_t>((float)cpu->registers[2]);
 		break;
 	case 0x01:
-		b = (float)(value);
+		cpu->registers[0] = (uint32_t)std::bit_cast<float>(cpu->registers[2]);
 		break;
 	case 0x02:
-		a = std::bit_cast<float>(value);
+		cpu->registers[0] = std::bit_cast<uint32_t>(std::bit_cast<float>(cpu->registers[2]) + std::bit_cast<float>(cpu->registers[3]));
 		break;
 	case 0x03:
-		b = std::bit_cast<float>(value);
+		cpu->registers[0] = std::bit_cast<uint32_t>(std::bit_cast<float>(cpu->registers[2]) - std::bit_cast<float>(cpu->registers[3]));
+		break;
+	case 0x04:
+		cpu->registers[0] = std::bit_cast<uint32_t>(std::bit_cast<float>(cpu->registers[2]) * std::bit_cast<float>(cpu->registers[3]));
+		break;
+	case 0x05:
+		cpu->registers[0] = std::bit_cast<uint32_t>(std::bit_cast<float>(cpu->registers[2]) / std::bit_cast<float>(cpu->registers[3]));
 		break;
 	default:
-		std::cerr << "Invalid FPU address 0x" << std::hex << address << std::endl;
+		std::cerr << "Invalid FPU syscall 0x" << std::hex << cpu->registers[1] << std::endl;
 		exit(1);
 	}
 }

@@ -197,7 +197,21 @@ int main(int argc, char *argv[])
 		case InstructionType::Immediate:
 		{
 			uint8_t rs, rd;  uint16_t imm;
-			if (operands.size() == 2)
+			if (operands.size() == 1)
+			{
+				if (operands[0].type == Token::Type::Immediate)
+				{
+					rs = 0;
+					rd = 0;
+					imm = (uint16_t)(size_t)operands[0].value;
+				}
+				else
+				{
+					std::cerr << "Invalid combination of operands on line " << linenumber << std::endl;
+					exit(1);
+				}
+			}
+			else if (operands.size() == 2)
 			{
 				if (operands[0].type == Token::Type::Register && operands[1].type == Token::Type::Immediate)
 				{

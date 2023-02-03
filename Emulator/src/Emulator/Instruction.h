@@ -55,8 +55,7 @@ enum Opcode : uint8_t
 	LI,
 	LUI,
 	B,
-	CORD,
-	COWR,
+	SYS,
 };
 
 enum class InstructionType
@@ -84,23 +83,21 @@ struct InstructionInfo
 // ============================================= //
 
 std::map<uint8_t, InstructionInfo> InstructionInfoFromOpcode = {
-	{ Opcode::MW,   { "mw",     Opcode::MW,   InstructionType::Register  } },
-	{ Opcode::LW,   { "lw",     Opcode::LW,   InstructionType::Immediate } },
-	{ Opcode::SW,   { "sw",     Opcode::SW,   InstructionType::Immediate } },
-	{ Opcode::LI,   { "li",     Opcode::LI,   InstructionType::Immediate } },
-	{ Opcode::LUI,  { "lui",    Opcode::LUI,  InstructionType::Immediate } },
-	{ Opcode::B,    { "b",      Opcode::B,    InstructionType::Address   } },
-	{ Opcode::CORD, { "cord",   Opcode::CORD, InstructionType::Register  } },
-	{ Opcode::COWR, { "cowr",   Opcode::COWR, InstructionType::Register  } },
+	{ Opcode::MW,  { "mw",  Opcode::MW,  InstructionType::Register  } },
+	{ Opcode::LW,  { "lw",  Opcode::LW,  InstructionType::Immediate } },
+	{ Opcode::SW,  { "sw",  Opcode::SW,  InstructionType::Immediate } },
+	{ Opcode::LI,  { "li",  Opcode::LI,  InstructionType::Immediate } },
+	{ Opcode::LUI, { "lui", Opcode::LUI, InstructionType::Immediate } },
+	{ Opcode::B,   { "b",   Opcode::B,   InstructionType::Address   } },
+	{ Opcode::SYS, { "sys", Opcode::SYS, InstructionType::Immediate } },
 };
 
 std::map<std::string, InstructionInfo> InstructionInfoFromName = {
-	{ "mw",     InstructionInfoFromOpcode[ Opcode::MW   ] },
-	{ "lw",     InstructionInfoFromOpcode[ Opcode::LW   ] },
-	{ "sw",     InstructionInfoFromOpcode[ Opcode::SW   ] },
-	{ "li",     InstructionInfoFromOpcode[ Opcode::LI   ] },
-	{ "lui",    InstructionInfoFromOpcode[ Opcode::LUI  ] },
-	{ "b",      InstructionInfoFromOpcode[ Opcode::B    ] },
-	{ "cord",   InstructionInfoFromOpcode[ Opcode::CORD ] },
-	{ "cowr",   InstructionInfoFromOpcode[ Opcode::COWR ] },
+	{ "mw",     InstructionInfoFromOpcode[ Opcode::MW  ] },
+	{ "lw",     InstructionInfoFromOpcode[ Opcode::LW  ] },
+	{ "sw",     InstructionInfoFromOpcode[ Opcode::SW  ] },
+	{ "li",     InstructionInfoFromOpcode[ Opcode::LI  ] },
+	{ "lui",    InstructionInfoFromOpcode[ Opcode::LUI ] },
+	{ "b",      InstructionInfoFromOpcode[ Opcode::B   ] },
+	{ "sys",    InstructionInfoFromOpcode[ Opcode::SYS ] },
 };
