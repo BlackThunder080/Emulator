@@ -19,11 +19,41 @@ struct Token
 	} type;
 };
 
-
-int main()
+inline const char* PopArgument(int& argc, char**& argv)
 {
-	std::ifstream infile("res/bios.asm");
-	std::ofstream outfile("../Emulator/res/bios.bin", std::ios::binary);
+	const char* argument = argv[0];
+	argc--;
+	argv++;
+	return argument;
+}
+
+inline void exit_with_message(int code, const char* message)
+{
+	std::cerr << message << std::endl;
+	exit(code);
+}
+
+
+
+int main(int argc, char *argv[])
+{
+	std::map<std::string, std::string> cmd_args = {
+		{ "in",  "a.in" },
+		{ "out", "a.out" },
+	};
+	PopArgument(argc, argv);
+	cmd_args["in"] = PopArgument(argc, argv);
+	while (argc > 0)
+	{
+		if (std::strcmp(PopArgument(argc, argv), "-o") == 0)
+			cmd_args["out"] = PopArgument(argc, argv);
+		else
+			exit_with_message(1, "Invalid Argument");
+	}
+
+
+	std::ifstream infile(cmd_args["in"]);
+	std::ofstream outfile(cmd_args["out"], std::ios::binary);
 
 	std::string line;
 
