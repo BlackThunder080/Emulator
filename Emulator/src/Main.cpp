@@ -10,41 +10,25 @@
 #include "ImGuiGLStuff/imgui_impl_glfw.h"
 #include "ImGuiGLStuff/imgui_impl_opengl3.h"
 
-#include "Emulator/CPU.h"
-#include "Emulator/GPU.h"
+#include "Platform.h"
+#include "System/CPU.h"
+#include "System/GPU.h"
+#include "System/Controller.h"
 
 
 int main(void)
 {
-	glfwInit();
-	GLFWwindow* window = glfwCreateWindow(1600, 900, "Emulator", NULL, NULL);
-	glfwMakeContextCurrent(window);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cerr << "Failed to intialize GLAD :( \n";
-		exit(-1);
-	}
-
-	glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int x, int y) {
-		glViewport(0, 0, x, y);
+	Platform::Init();
+	GLFWwindow* window = Platform::GlfwCreateWindow("Emulator", 1600, 900);
+	Platform::ImGuiInitForGLFW(window);
+	
+	CPU cpu;
+	glfwSetWindowUserPointer(window, &cpu);
+	glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+		CPU* cpu = (CPU*)glfwGetWindowUserPointer(window);
+		cpu->GetController()->SetKeyState(key, action);
 	});
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	io.Fonts->AddFontFromFileTTF("res/fonts/roboto/Roboto-Regular.ttf", 20);
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.WindowRounding = 10.0f;
-	
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init();
-
-	ImGui::StyleColorsDark();
-
-	CPU cpu;
-	
 	std::map<std::string, bool> popups = {
 		{ "Load ROM", false },
 	};
@@ -75,7 +59,10 @@ int main(void)
 				else
 				{
 					if (ImGui::Button(entry.path().filename().string().c_str()))
+					{
 						cpu.LoadRomFile(entry.path().string());
+						popups["Load ROM"] = false;
+					}
 				}
 			}
 			ImGui::End();
@@ -120,9 +107,6 @@ int main(void)
 		glfwPollEvents();
 	}
 
-	ImGui_ImplGlfw_Shutdown();
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui::DestroyContext();
-	
-	glfwTerminate();
+	Platform::ImGuiClose();
+	Platform::GlfwClose();
 }

@@ -6,6 +6,7 @@
 #include "CPU.h"
 #include "FPU.h"
 #include "GPU.h"
+#include "Controller.h"
 
 
 static inline uint32_t bit_range(uint32_t val, uint8_t start, uint8_t end)
@@ -23,6 +24,7 @@ CPU::CPU()
 
 	coprocessors[0] = std::make_unique<FPU>();
 	coprocessors[1] = std::make_unique<GPU>();
+	coprocessors[2] = std::make_unique<Controller>();
 }
 
 CPU::~CPU()
@@ -42,6 +44,9 @@ void CPU::ExecuteCycle()
 		InstructionR instruction(instructionbytes);
 		switch (instruction.opcode)
 		{
+		case Opcode::MW:
+			registers[instruction.r1] = registers[instruction.r2];
+			break;
 		default:
 			break;
 		}

@@ -6,8 +6,6 @@
 #include "Coprocessor.h"
 
 
-class GPU;
-
 class CPU
 {
 public:
@@ -23,7 +21,9 @@ public:
 	uint8_t* rom;
 	uint8_t* ram;
 
-	GPU* GetGPU() { return (GPU*)coprocessors[1].get(); }
+	class FPU* GetFPU() { return (class FPU*) coprocessors[0].get(); }
+	class GPU* GetGPU() { return (class GPU*) coprocessors[1].get(); }
+	class Controller* GetController() { return (class Controller*) coprocessors[2].get(); }
 
 	bool running = false;
 

@@ -70,6 +70,8 @@ void GPU::Call(CPU* cpu)
 	switch (cpu->registers[1])
 	{
 	case 0x00:
+		for (auto [buffer, vertices] : m_VBOs)
+			glDeleteBuffers(1, &buffer);
 		m_VBOs.clear();
 		break;
 	case 0x01:
@@ -92,9 +94,9 @@ void GPU::RenderMeshes()
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(0);
 
-	for (auto [vertexbuffer, vertices] : m_VBOs)
+	for (auto [buffer, vertices] : m_VBOs)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
 		glDrawArrays(GL_TRIANGLES, 0, vertices);
 	}
 }

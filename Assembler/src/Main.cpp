@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "../../Emulator/src/Emulator/Instruction.h"
+#include "../../Emulator/src/System/Instruction.h"
 
 
 struct Token

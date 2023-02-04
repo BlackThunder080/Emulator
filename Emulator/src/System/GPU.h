@@ -3,6 +3,7 @@
 #include "Coprocessor.h"
 
 
+class CPU;
 class GPU : public Coprocessor
 {
 public:
